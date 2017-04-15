@@ -4,7 +4,13 @@
 #define GMS_DLL extern "C" __declspec (dllexport)
 #include <Windows.h>
 #include <iostream>
-//DsMap creation to pass into GMS
+
+#pragma region GMS
+/*
+	The following functions are used to construct a ds_map with C++
+	and then pass them into GMS with the async social event
+	Source: https://help.yoyogames.com/hc/en-us/articles/216755258-Returning-Values-From-An-Extension-Asynchronously-GMS-v1-3-
+*/
 const int EVENT_OTHER_SOCIAL = 70;
 void(*CreateAsynEventWithDSMap)(int, int) = NULL;
 int(*CreateDsMap)(int _num, ...) = NULL;
@@ -21,7 +27,9 @@ GMS_DLL void RegisterCallbacks(char* arg1, char* arg2, char* arg3, char* arg4) {
 	DsMapAddDouble = DsMapAddDoublePtr;
 	DsMapAddString = DsMapAddStringPtr;
 }
+#pragma endregion
 
+#pragma region Win32
 void ErrorCheck() {
 	std::cout << "Error: " << GetLastError() << std::endl;
 }
@@ -44,4 +52,6 @@ std::wstring utf8_decode(const std::string &str)
 	MultiByteToWideChar(CP_UTF8, 0, &str[0], (int)str.size(), &wstrTo[0], size_needed);
 	return wstrTo;
 }
+#pragma endregion
+
 #endif

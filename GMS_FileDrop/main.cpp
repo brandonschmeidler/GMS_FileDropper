@@ -5,13 +5,13 @@
 //GLOBALS
 HWND gmWindow;
 HHOOK g_hook;
-HINSTANCE g_hThisDll;
+HINSTANCE g_DllInstance;
 
 //DLL ENTRY
 int APIENTRY DllMain(HINSTANCE hInstance, DWORD dwReason, LPVOID IpReserved) {
 	if (dwReason == DLL_PROCESS_ATTACH) {
-		g_hThisDll = hInstance;
-		return DisableThreadLibraryCalls(g_hThisDll);
+		g_DllInstance = hInstance;
+		return DisableThreadLibraryCalls(g_DllInstance);
 	}
 
 	return TRUE;
@@ -22,8 +22,6 @@ std::vector<std::wstring> ExtractPathList(HDROP hDrop){
 	std::vector<std::wstring> pathList;
 	UINT dropCount = DragQueryFile(hDrop, 0xFFFFFFFF, NULL, NULL);
 	
-	//std::cout << dropCount << " files dropped" << std::endl;
-
 	for (UINT i = 0; i < dropCount; i++) {
 		int bufferSize = DragQueryFile(hDrop, i, NULL, NULL) + 1;
 
@@ -64,7 +62,7 @@ LRESULT CALLBACK HookCallback(int nCode, WPARAM wParam, LPARAM lParam) {
 //EXPORTED FUNCTIONS
 GMS_DLL double gms_filedrop_init() {
 	gmWindow = GetActiveWindow();
-	g_hook = SetWindowsHookEx(WH_GETMESSAGE, (HOOKPROC)HookCallback, g_hThisDll, 0);
+	g_hook = SetWindowsHookEx(WH_GETMESSAGE, (HOOKPROC)HookCallback, g_DllInstance, 0);
 	DragAcceptFiles(gmWindow, true);
 	std::cout << "File drop initialized" << std::endl;
 	return 0;
@@ -77,18 +75,3 @@ GMS_DLL double gms_filedrop_free() {
 	std::cout << "File drop freed" << std::endl;
 	return 0;
 }
-
-/*
-GMS_DLL double gms_filedrop_error_check() {
-	ErrorCheck();
-	return 0;
-}
-
-GMS_DLL double gms_buffer_fiddle(char* buffer, double size) {
-	for (int i = 0; i < size; ++i) {
-		buffer[i] = size - i;
-	}
-
-	return 0;
-}
-*/
