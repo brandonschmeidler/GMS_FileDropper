@@ -6,6 +6,7 @@
 HWND gmWindow;
 HHOOK g_hook;
 HINSTANCE g_DllInstance;
+bool g_extensionEnabled;
 
 //DLL ENTRY
 int APIENTRY DllMain(HINSTANCE hInstance, DWORD dwReason, LPVOID IpReserved) {
@@ -14,6 +15,7 @@ int APIENTRY DllMain(HINSTANCE hInstance, DWORD dwReason, LPVOID IpReserved) {
 		return DisableThreadLibraryCalls(g_DllInstance);
 	}
 
+	g_extensionEnabled = false;
 	return TRUE;
 }
 
@@ -61,6 +63,8 @@ LRESULT CALLBACK HookCallback(int nCode, WPARAM wParam, LPARAM lParam) {
 
 //EXPORTED FUNCTIONS
 GMS_DLL double gms_filedrop_init() {
+	if (g_extensionEnabled) return 0;
+	g_extensionEnabled = true;
 	gmWindow = GetActiveWindow();
 	g_hook = SetWindowsHookEx(WH_GETMESSAGE, (HOOKPROC)HookCallback, g_DllInstance, 0);
 	DragAcceptFiles(gmWindow, true);
@@ -69,9 +73,15 @@ GMS_DLL double gms_filedrop_init() {
 }
 
 GMS_DLL double gms_filedrop_free() {
+	if (!g_extensionEnabled) return 0;
+	g_extensionEnabled = false;
 	UnhookWindowsHookEx(g_hook);
 	g_hook = NULL;
 	DragAcceptFiles(gmWindow, false);
 	std::cout << "File drop freed" << std::endl;
 	return 0;
+}
+
+GMS_DLL double gms_filedrop_enabled() {
+	return g_extensionEnabled ? GMS_TRUE : GMS_FALSE;
 }

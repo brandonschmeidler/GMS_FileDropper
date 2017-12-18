@@ -2,6 +2,8 @@
 #ifndef _GMS_Win32Ext_HPP
 #define _GMS_Win32Ext_HPP
 #define GMS_DLL extern "C" __declspec (dllexport)
+#define GMS_TRUE 1
+#define GMS_FALSE 0
 #include <Windows.h>
 #include <iostream>
 
